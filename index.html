@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>ショート動画の一覧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7f8;--card:#fff;--ink:#1b2326;--sub:#66727a;--line:#e2e6e9;--acc:#11434d;--src:#eef5f6;
+ --b0:#e04848;--b1:#d9a400;--b2:#e07b1a;--b3:#2f9e5b;--b4:#2b72c9;--b5:#9aa3a8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121619;--card:#1b2125;--ink:#e8eced;--sub:#9aa6ad;--line:#2b3338;--acc:#7fc9d6;--src:#1d2a2e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Noto Sans JP",system-ui,sans-serif}
+header{padding:22px 24px 8px;max-width:1240px;margin:0 auto}
+h1{margin:0;font-size:22px}
+.lead{margin:4px 0 0;color:var(--sub);font-size:13px}
+.flow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 0;font-size:13px;font-weight:600}
+.flow span{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:3px 9px}
+.flow em{font-style:normal;color:var(--sub)}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs{max-width:1240px;margin:0 auto;padding:0 24px;display:flex;gap:4px}
+.tab{border:0;background:none;color:var(--sub);font:inherit;font-weight:700;font-size:16px;padding:12px 16px;cursor:pointer;border-bottom:3px solid transparent}
+.tab[aria-selected="true"]{color:var(--acc);border-bottom-color:var(--acc)}
+main{max-width:1240px;margin:0 auto;padding:12px 24px 60px}
+.pane[hidden]{display:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:3px 10px 3px 4px;font:inherit;font-size:13px;cursor:pointer}
+.chip.on{outline:2px solid var(--acc)}
+.b{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.b0{background:var(--b0)}.b1{background:var(--b1)}.b2{background:var(--b2)}.b3{background:var(--b3)}.b4{background:var(--b4)}.b5{background:var(--b5)}
+h2.kind{font-size:17px;margin:26px 0 10px;padding-left:10px;border-left:5px solid var(--acc)}
+h2.kind span{color:var(--sub);font-size:13px;font-weight:400}
+.head{display:grid;grid-template-columns:230px 1fr;font-size:12px;color:var(--sub);font-weight:700;margin:0 0 4px;border:1px solid transparent}
+.head .hs{padding:0 14px}.head .w,.head .msg,.head .row{border:0;padding-top:0;padding-bottom:0;font-weight:700;font-size:12px}
+.grp{display:grid;grid-template-columns:230px 1fr;background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 12px;overflow:hidden}
+.src{background:var(--src);padding:14px}
+.src .dt{font-size:12px;color:var(--sub)}
+.src .nm{font-weight:700;font-size:14px}
+.w{display:grid;grid-template-columns:1.1fr 3.35fr;border-bottom:1px solid var(--line)}
+.w:last-child{border-bottom:0}
+.msg{padding:14px 12px;font-weight:600;font-size:14px;border-right:1px solid var(--line)}
+.row{display:grid;grid-template-columns:.9fr 1.3fr 150px;gap:10px;padding:10px 12px;align-items:start;border-bottom:1px dashed var(--line)}
+.row:last-child{border-bottom:0}
+.row.dead{opacity:.5}
+.row.hide{display:none}
+.how{font-size:13px}
+.vid{display:flex;gap:10px;align-items:flex-start}
+.th{position:relative;flex:none;width:62px;height:110px;border:0;padding:0;border-radius:6px;overflow:hidden;background:#000;cursor:pointer}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th i{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-style:normal;font-size:22px;text-shadow:0 1px 4px #000a;background:#0002}
+.th.none{display:grid;place-items:center;font-size:11px;color:var(--sub);background:var(--src);cursor:default}
+.tt b{display:block;font-size:13px;line-height:1.45}
+.tt small{color:var(--sub);font-size:11px}
+.wd{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.45}
+.empty{color:var(--sub);padding:20px 0}
+footer{color:var(--sub);font-size:12px;margin-top:30px}
+#modal{position:fixed;inset:0;background:#000d;display:none;place-items:center;z-index:20}
+#modal.open{display:grid}
+#modal video{max-height:88vh;max-width:94vw;border-radius:8px;background:#000}
+#modal button{position:absolute;top:14px;right:18px;border:0;background:#fff;color:#000;border-radius:20px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}
+@media (max-width:860px){
+ header,main,.tabs{padding-left:16px;padding-right:16px}
+ .head{display:none}
+ .grp{grid-template-columns:1fr}
+ .w{grid-template-columns:1fr}
+ .msg{border-right:0;border-bottom:1px solid var(--line);padding:10px 12px}
+ .row{grid-template-columns:1fr;gap:6px}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>ショート動画の一覧</h1>
+ <p class="lead">左から右へ読む。▶ を押すとその場で再生。更新 2026/11/23</p>
+ <div class="flow"><span>元ネタ</span><em>→</em><span>伝えたいこと</span><em>→</em><span>どのように（見せ方・トーン）</span><em>→</em><span>動画</span><em>→</em><span>判定</span></div>
+</header>
+<nav><div class="tabs" role="tablist">
+ <button class="tab" role="tab" aria-selected="true" data-t="what">What起点 <small>51本</small></button>
+ <button class="tab" role="tab" aria-selected="false" data-t="who">Who起点 <small>3本</small></button>
+</div></nav>
+<main>
+ <div class="pane" id="what">
+  <p class="lead">言いたいこと（適当投稿・SEO記事）が先にあって、場面を後から作った動画</p>
+  <div class="chips"><button class="chip" data-f="未確認"><span class="b b0">未確認</span>12</button><button class="chip" data-f="記録なし"><span class="b b1">記録なし</span>18</button><button class="chip" data-f="直し"><span class="b b2">直し</span>4</button><button class="chip" data-f="OK"><span class="b b3">OK</span>2</button><button class="chip" data-f="投稿済み"><span class="b b4">投稿済み</span>1</button><button class="chip" data-f="没"><span class="b b5">没</span>14</button></div>
+  <div class="head"><div class="hs">元ネタ</div><div class="w"><div class="msg">伝えたいこと</div><div class="row"><div>どのように</div><div>動画</div><div>判定</div></div></div></div>
+  <h2 class="kind">適当投稿から <span>39本</span></h2>
+<section class="grp"><div class="src"><div class="dt">2026-09-29</div><div class="nm">短期黒字への過剰最適化が、長期生存率を下げることがある</div></div><div class="ws">
+<div class="w"><div class="msg">今月の数字は、前に打った手の結果。止めた害は、後から来る。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-38.mp4" aria-label="再生"><img loading="lazy" src="v/動-38.jpg" alt=""><i>▶</i></button><div class="tt"><b>赤字で広告を止める</b><small>動-38・81秒・11/15</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+<div class="row" data-jd="未確認"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-57.mp4" aria-label="再生"><img loading="lazy" src="v/動-57.jpg" alt=""><i>▶</i></button><div class="tt"><b>広告を、全部止めろ（あたおか7本目）</b><small>動-57・110秒・11/20</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-10-09</div><div class="nm">お金の量だけでなく、色と質を見極める</div></div><div class="ws">
+<div class="w"><div class="msg">値引きは、客を増やすより、定価の客を「値引き待ちの客」に変える。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-56.mp4" aria-label="再生"><img loading="lazy" src="v/動-56.jpg" alt=""><i>▶</i></button><div class="tt"><b>半額クーポンを、毎週配れ（あたおか6本目）</b><small>動-56・113秒・11/20</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-10-12</div><div class="nm">平時と有事では市場の競争優位が逆転する</div></div><div class="ws">
+<div class="w"><div class="msg">客は、ふだんは値段で比べ、足りない時は「回してくれるか」で比べ直す。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-58.mp4" aria-label="再生"><img loading="lazy" src="v/動-58.jpg" alt=""><i>▶</i></button><div class="tt"><b>米を、一番高く買う店に、売れ（あたおか8本目）</b><small>動-58・109秒・11/20</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-05-20</div><div class="nm">独立とは依存をなくすのでなく、分散するプロセス</div></div><div class="ws">
+<div class="w"><div class="msg">1つの相手に頼り切ると、値段も行き先も相手に決められる。断れる余地（ほかの売り先・自分の客）を持つ。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-59.mp4" aria-label="再生"><img loading="lazy" src="v/動-59.jpg" alt=""><i>▶</i></button><div class="tt"><b>A社の言うことは、全部聞け（あたおか9本目）</b><small>動-59・106秒・11/20</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-06-14</div><div class="nm">合理的目的の過剰最適化が人もAIも壊す</div></div><div class="ws">
+<div class="w"><div class="msg">正しい目的でも、1つの数字だけを極めると、ほかが壊れる。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-60.mp4" aria-label="再生"><img loading="lazy" src="v/動-60.jpg" alt=""><i>▶</i></button><div class="tt"><b>靴を、1足も、切らすな（あたおか10本目）</b><small>動-60・110秒・11/20</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-08-25</div><div class="nm">魅力が負担を上回っても、許容量を超えると選ばれない</div></div><div class="ws">
+<div class="w"><div class="msg">「いいね」と言われても決まらない時、止めているのは魅力でなく、抱えきれない手間。足すより、減らして引き取る。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-34.mp4" aria-label="再生"><img loading="lazy" src="v/動-34.jpg" alt=""><i>▶</i></button><div class="tt"><b>いいねなのに断られた</b><small>動-34・74秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="記録なし"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-53.mp4" aria-label="再生"><img loading="lazy" src="v/動-53.jpg" alt=""><i>▶</i></button><div class="tt"><b>もっと押せ（あたおか5本目）</b><small>動-53・107秒・11/19</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-08-20</div><div class="nm">プランとは、目的から手段と検証までを一本につなぐこと</div></div><div class="ws">
+<div class="w"><div class="msg">打ち手の前に「何の数を増やすか→誰に→何を」を決める。上の段が空のまま下を決めても届かない（どのようにも大事。決める順番が上から）。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・3択クイズ</div><div class="vid"><button class="th" data-v="v/動-18.mp4" aria-label="再生"><img loading="lazy" src="v/動-18.jpg" alt=""><i>▶</i></button><div class="tt"><b>明日までに投稿ネタ10個（2本目）</b><small>動-18・46秒・11/06</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択（どっちが正解）</div><div class="vid"><button class="th" data-v="v/動-42.mp4" aria-label="再生"><img loading="lazy" src="v/動-42.jpg" alt=""><i>▶</i></button><div class="tt"><b>給料か働き方か（No.14）</b><small>動-42・66秒・11/17</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・5問つづけて（解説なし）</div><div class="vid"><button class="th" data-v="v/動-44.mp4" aria-label="再生"><img loading="lazy" src="v/動-44.jpg" alt=""><i>▶</i></button><div class="tt"><b>仕事の2択 5問！</b><small>動-44・59秒・11/17</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・やり直して見せる</div><div class="vid"><button class="th" data-v="v/動-45.mp4" aria-label="再生"><img loading="lazy" src="v/動-45.jpg" alt=""><i>▶</i></button><div class="tt"><b>面接の辞退が止まらない</b><small>動-45・58秒・11/17</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・求職者の目線→層の木</div><div class="vid"><button class="th" data-v="v/動-46.mp4" aria-label="再生"><img loading="lazy" src="v/動-46.jpg" alt=""><i>▶</i></button><div class="tt"><b>給料が高いのに閉じた理由</b><small>動-46・58秒・11/17</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・謎解き→層の木</div><div class="vid"><button class="th" data-v="v/動-47.mp4" aria-label="再生"><img loading="lazy" src="v/動-47.jpg" alt=""><i>▶</i></button><div class="tt"><b>来てほしい人が来ない事件</b><small>動-47・64秒・11/17</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="直し"><div class="how">2Dゲーム画面・3択クイズ</div><div class="vid"><button class="th" data-v="v/動-17.mp4" aria-label="再生"><img loading="lazy" src="v/動-17.jpg" alt=""><i>▶</i></button><div class="tt"><b>明日までに施策20個（2本目）</b><small>動-17・・11/06</small></div></div><div class="jd"><span class="b b2">直し</span><div class="wd">「前提を変えるって何・声が変・誰が誰だか・文字が被ってる」「施策20個は抽象度が高すぎ」</div></div></div>
+<div class="row" data-jd="投稿済み"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-49.mp4" aria-label="再生"><img loading="lazy" src="v/動-49.jpg" alt=""><i>▶</i></button><div class="tt"><b>とにかくバズらせろ（あたおか1本目）</b><small>動-49・96秒・11/19</small></div></div><div class="jd"><span class="b b4">投稿済み</span><div class="wd">「いいよ投稿して」（11/19）</div></div></div>
+<div class="row dead" data-jd="没"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-35.mp4" aria-label="再生"><img loading="lazy" src="v/動-35.jpg" alt=""><i>▶</i></button><div class="tt"><b>とりあえずSNS</b><small>動-35・81秒・11/15</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「主人公感が出ない・部長の声と解説が分からない・結局○×問題じゃなくなってない？」</div></div></div>
+<div class="row dead" data-jd="没"><div class="how">2Dゲーム画面・2択（どっちが正解）</div><div class="vid"><button class="th" data-v="v/動-40.mp4" aria-label="再生"><img loading="lazy" src="v/動-40.jpg" alt=""><i>▶</i></button><div class="tt"><b>毎日投稿か社員の話か（No.14）</b><small>動-40・64秒・11/16</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「質問がわかりにくい・ロジックツリーが繋がっていない・どの選択にもROIがある」</div></div></div>
+<div class="row dead" data-jd="没"><div class="how">2Dゲーム画面・2択（どっちが正解）</div><div class="vid"><button class="th" data-v="v/動-41.mp4" aria-label="再生"><img loading="lazy" src="v/動-41.jpg" alt=""><i>▶</i></button><div class="tt"><b>回数か中身か（No.14）</b><small>動-41・64秒・11/16</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「解説が全然構造的でない・レイヤーが違う・売上貢献に吊り下がってない」</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-09-22</div><div class="nm">需要があっても、選べるだけの接続情報がなければ届かない</div></div><div class="ws">
+<div class="w"><div class="msg">客は、中が見えない物の値打ちを、見える証拠で推し量る。材料が無ければ、良い物でも選ばれない（AIも同じ）。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">2Dゲーム画面・部長の2択（型H）</div><div class="vid"><div class="th none">台本だけ</div><div class="tt"><b>掃除が1時間／説明できない（型H 1本目）</b><small>動-55・・11/19</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-09-16</div><div class="nm">独自性は、顧客の必要と重なって初めて行動につながる</div></div><div class="ws">
+<div class="w"><div class="msg">違いは、客の困りごとに重なった時だけ効く。重ならない違いは、どれだけすごくても読み飛ばされる。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-33.mp4" aria-label="再生"><img loading="lazy" src="v/動-33.jpg" alt=""><i>▶</i></button><div class="tt"><b>業界初が刺さらない</b><small>動-33・79秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+<div class="w"><div class="msg">違いを足すより、客が「もう無理」と諦めている困りごとに答える。</div><div class="rows">
+<div class="row dead" data-jd="没"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-52.mp4" aria-label="再生"><img loading="lazy" src="v/動-52.jpg" alt=""><i>▶</i></button><div class="tt"><b>差別化しろ（あたおか4本目）</b><small>動-52・75秒・11/18</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「本当によく分かんない。青いラーメンが結局何なのか。示唆がない」</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-09-02</div><div class="nm">人の属性ではなく、必要が生まれる場面から考える</div></div><div class="ws">
+<div class="w"><div class="msg">人が問い合わせるのは、その人が「誰か」より、困りごとが「起きた時」。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-36.mp4" aria-label="再生"><img loading="lazy" src="v/動-36.jpg" alt=""><i>▶</i></button><div class="tt"><b>40代にだけ広告</b><small>動-36・86秒・11/15</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+<div class="row dead" data-jd="没"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-50.mp4" aria-label="再生"><img loading="lazy" src="v/動-50.jpg" alt=""><i>▶</i></button><div class="tt"><b>40代にだけ広告を出せ（あたおか2本目）</b><small>動-50・92秒・11/18</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「全然面白くない・ただ状況を出しただけ・あたおかじゃない・40代がダメは決めつけ」</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-06-29</div><div class="nm">原因と責任を分ける</div></div><div class="ws">
+<div class="w"><div class="msg">犯人を探しても同じミスは止まらない。人の段でなく、手順の段（書き写す回数）を直す。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-37.mp4" aria-label="再生"><img loading="lazy" src="v/動-37.jpg" alt=""><i>▶</i></button><div class="tt"><b>値段の間違い</b><small>動-37・78秒・11/15</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+<div class="row dead" data-jd="没"><div class="how">3Dアニメ・あたおか（社長が暴走→たまたま当たる→解説・笑い）</div><div class="vid"><button class="th" data-v="v/動-51.mp4" aria-label="再生"><img loading="lazy" src="v/動-51.jpg" alt=""><i>▶</i></button><div class="tt"><b>犯人を探せ（あたおか3本目）</b><small>動-51・87秒・11/18</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「理解ができてない。インサイトもわかんない。石に書き写すって何の話か」</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-08-27</div><div class="nm">教える「点」と、育てる「線」を分ける</div></div><div class="ws">
+<div class="w"><div class="msg">できるようになるのは、教わった回数より、自分でやって直してもらった回数。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-32.mp4" aria-label="再生"><img loading="lazy" src="v/動-32.jpg" alt=""><i>▶</i></button><div class="tt"><b>教えたのに新人ができない</b><small>動-32・73秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→先生が解説（小学生の英語）</div><div class="vid"><button class="th" data-v="v/動-43.mp4" aria-label="再生"><img loading="lazy" src="v/動-43.jpg" alt=""><i>▶</i></button><div class="tt"><b>単語は知ってたのに（No.19）</b><small>動-43・65秒・11/16</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-08-31</div><div class="nm">顧客を増やす前に、価値が成立する相手を見極める</div></div><div class="ws">
+<div class="w"><div class="msg">客を増やす前に、値打ちが成り立つ（続いてくれる）相手を入口で決める。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-39.mp4" aria-label="再生"><img loading="lazy" src="v/動-39.jpg" alt=""><i>▶</i></button><div class="tt"><b>問合せは全部取れ</b><small>動-39・78秒・11/15</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-03-06</div><div class="nm">気付かないのではなく、気付けない配置にいる</div></div><div class="ws">
+<div class="w"><div class="msg">気付けないのは、能力でなく、その席から見えないから。相手が毎日見ている数の言葉で話す。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-25.mp4" aria-label="再生"><img loading="lazy" src="v/動-25.jpg" alt=""><i>▶</i></button><div class="tt"><b>フォームの穴</b><small>動-25・76秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-02-27</div><div class="nm">正しさもゲームごと飲まれる</div></div><div class="ws">
+<div class="w"><div class="msg">正しい案が通らない時は、相手が何の数を見ているか（どのゲームの上にいるか）を読み違えている。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-26.mp4" aria-label="再生"><img loading="lazy" src="v/動-26.jpg" alt=""><i>▶</i></button><div class="tt"><b>正しい案が通らない</b><small>動-26・77秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-03-06</div><div class="nm">成功より失敗の方が再現する</div></div><div class="ws">
+<div class="w"><div class="msg">成功には運が混ざる。学ぶなら、勝ち方より負け方。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-27.mp4" aria-label="再生"><img loading="lazy" src="v/動-27.jpg" alt=""><i>▶</i></button><div class="tt"><b>他社のまね</b><small>動-27・74秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-06-24</div><div class="nm">努力量と売上はイコールではない</div></div><div class="ws">
+<div class="w"><div class="msg">頑張る量を増やす前に、流れのどこで詰まっているかを探す。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-28.mp4" aria-label="再生"><img loading="lazy" src="v/動-28.jpg" alt=""><i>▶</i></button><div class="tt"><b>頑張っても売上同じ</b><small>動-28・73秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-08-28</div><div class="nm">数字が上がったことと、効いた理由が分かったことは違う</div></div><div class="ws">
+<div class="w"><div class="msg">数字が上がっても、効いた理由が分かったとは限らない。動かせる物と動かせない物（季節・他社）に分けて確かめる。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-29.mp4" aria-label="再生"><img loading="lazy" src="v/動-29.jpg" alt=""><i>▶</i></button><div class="tt"><b>先月の広告をまた出す</b><small>動-29・71秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-04-04</div><div class="nm">強い感情ほどシグナルとは限らない</div></div><div class="ws">
+<div class="w"><div class="msg">声の大きさと大事さは別。強い感情ほど、大事な知らせとは限らない。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-30.mp4" aria-label="再生"><img loading="lazy" src="v/動-30.jpg" alt=""><i>▶</i></button><div class="tt"><b>苦情1本で全部止めろ</b><small>動-30・72秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-08-22</div><div class="nm">一番脱ぎにくい殻は、成功によってできた殻</div></div><div class="ws">
+<div class="w"><div class="msg">一番手放しにくいのは、うまくいったやり方。うまくいっている時ほど「変えるべきか」という問いが生まれない。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-31.mp4" aria-label="再生"><img loading="lazy" src="v/動-31.jpg" alt=""><i>▶</i></button><div class="tt"><b>課長がチラシをやめない</b><small>動-31・68秒・11/13</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-02-17</div><div class="nm">conflict は input / conversion / output の差</div></div><div class="ws">
+<div class="w"><div class="msg">言い分の違いは、性格より、経験と受け取り方の違いから出る。言葉だけで言い合っても解けない。</div><div class="rows">
+<div class="row" data-jd="OK"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-21.mp4" aria-label="再生"><img loading="lazy" src="v/動-21.jpg" alt=""><i>▶</i></button><div class="tt"><b>会議でケンカ</b><small>動-21・76秒・11/10</small></div></div><div class="jd"><span class="b b3">OK</span><div class="wd">「ゲームの動画は使います」（後の見せ方の試し V086〜V110 は全部没）</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-08-23</div><div class="nm">生産性向上は「作業を速くする」より「やらない作業を増やす」</div></div><div class="ws">
+<div class="w"><div class="msg">速くしても仕事は減らない。減らすのは作業の数＝やらない作業を決める。</div><div class="rows">
+<div class="row" data-jd="OK"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-22.mp4" aria-label="再生"><img loading="lazy" src="v/動-22.jpg" alt=""><i>▶</i></button><div class="tt"><b>AIで速くなったのに帰れない</b><small>動-22・63秒・11/10</small></div></div><div class="jd"><span class="b b3">OK</span><div class="wd">「2本目は OK だね」</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="dt">2026-11-06</div><div class="nm">スキルアップとステージアップは同期しない</div></div><div class="ws">
+<div class="w"><div class="msg">力がついても、任される範囲（どの数・どのお金を動かすか）が変わらないと、上には上がらない。</div><div class="rows">
+<div class="row" data-jd="直し"><div class="how">2Dゲーム画面・2択→部長が解説</div><div class="vid"><button class="th" data-v="v/動-23.mp4" aria-label="再生"><img loading="lazy" src="v/動-23.jpg" alt=""><i>▶</i></button><div class="tt"><b>資格を取ったのに給料同じ</b><small>動-23・56秒・11/10</small></div></div><div class="jd"><span class="b b2">直し</span><div class="wd">「役割が前と同じまんま、の説明が分かりにくい。要素分解できてない」</div></div></div>
+</div></div>
+</div></section>
+<h2 class="kind">SEO記事から <span>10本</span></h2>
+<section class="grp"><div class="src"><div class="nm">記事9「会議で議論が噛み合わない」</div></div><div class="ws">
+<div class="w"><div class="msg">会議が回り続けるのは、目的・やり方・選ぶ基準のどこがずれているかが見えていないから。答えは2択の外にあることも。</div><div class="rows">
+<div class="row" data-jd="直し"><div class="how">会話コント・2人がもめ続ける</div><div class="vid"><button class="th" data-v="v/動-07.mp4" aria-label="再生"><img loading="lazy" src="v/動-07.jpg" alt=""><i>▶</i></button><div class="tt"><b>フォームの項目で永遠にもめる2人</b><small>動-07・47秒・10/28</small></div></div><div class="jd"><span class="b b2">直し</span><div class="wd">「締めで答えを繰り返すな・検索語も微妙」</div></div></div>
+<div class="row" data-jd="直し"><div class="how">2Dゲーム画面・3択クイズ</div><div class="vid"><button class="th" data-v="v/動-16.mp4" aria-label="再生"><img loading="lazy" src="v/動-16.jpg" alt=""><i>▶</i></button><div class="tt"><b>フォームの欄（1本目）</b><small>動-16・42秒・11/06</small></div></div><div class="jd"><span class="b b2">直し</span><div class="wd">「割といいね。議題が超わかりにくい」「考える時間3秒は早すぎ」</div></div></div>
+<div class="row dead" data-jd="没"><div class="how">図解・記事の要約（続きは記事で）</div><div class="vid"><button class="th" data-v="v/動-01.mp4" aria-label="再生"><img loading="lazy" src="v/動-01.jpg" alt=""><i>▶</i></button><div class="tt"><b>会議が毎回平行線になる理由</b><small>動-01・40秒・10/27</small></div></div><div class="jd"><span class="b b5">没</span></div></div>
+<div class="row dead" data-jd="没"><div class="how">図解・記事の要約（続きは記事で）</div><div class="vid"><button class="th" data-v="v/動-02.mp4" aria-label="再生"><img loading="lazy" src="v/動-02.jpg" alt=""><i>▶</i></button><div class="tt"><b>同じ「受注を増やしたい」で揉める理由</b><small>動-02・35秒・10/27</small></div></div><div class="jd"><span class="b b5">没</span></div></div>
+<div class="row dead" data-jd="没"><div class="how">図解・記事の要約（続きは記事で）</div><div class="vid"><button class="th" data-v="v/動-03.mp4" aria-label="再生"><img loading="lazy" src="v/動-03.jpg" alt=""><i>▶</i></button><div class="tt"><b>フォームの項目、増やす？減らす？</b><small>動-03・36秒・10/27</small></div></div><div class="jd"><span class="b b5">没</span></div></div>
+<div class="row dead" data-jd="没"><div class="how">図解・記事の要約（続きは記事で）</div><div class="vid"><button class="th" data-v="v/動-04.mp4" aria-label="再生"><img loading="lazy" src="v/動-04.jpg" alt=""><i>▶</i></button><div class="tt"><b>同じ案なのに、評価が割れる</b><small>動-04・32秒・10/27</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「全然ダメ・フックになってない・初見で分からない」</div></div></div>
+<div class="row dead" data-jd="没"><div class="how">会話コント・2人がもめ続ける</div><div class="vid"><button class="th" data-v="v/動-05.mp4" aria-label="再生"><img loading="lazy" src="v/動-05.jpg" alt=""><i>▶</i></button><div class="tt"><b>2人とも正しいのに終わらない会議</b><small>動-05・46秒・10/28</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「内容がおもろくない。マジでくだらない議論」</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="nm">「施策の優先順位はどう決まるのか」（公開記事）</div></div><div class="ws">
+<div class="w"><div class="msg">「最優先」がぶれるのは、言う人ごとに見ている期間（今週・半年・来年）が違うから。</div><div class="rows">
+<div class="row dead" data-jd="没"><div class="how">昭和アニメ・もめ事→種明かし</div><div class="vid"><button class="th" data-v="v/動-12.mp4" aria-label="再生"><img loading="lazy" src="v/動-12.jpg" alt=""><i>▶</i></button><div class="tt"><b>最優先がころころ（5行目）</b><small>動-12・73秒・11/03</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「構成からいまいち・面白くない・テンポが悪くなった」</div></div></div>
+<div class="row dead" data-jd="没"><div class="how">昭和アニメ・もめ事→種明かし</div><div class="vid"><button class="th" data-v="v/動-13.mp4" aria-label="再生"><img loading="lazy" src="v/動-13.jpg" alt=""><i>▶</i></button><div class="tt"><b>最優先を全部引き受けたら（5行目）</b><small>動-13・32秒・11/04</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「映像は良くなったが全然おもろくない・何を伝えたいのか分からない」</div></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="nm">記事10「施策を並べる前に決めること」</div></div><div class="ws">
+<div class="w"><div class="msg">打ち手の前に「何の数を増やすか→誰に→何を」を決める。上の段が空のまま下を決めても届かない（どのようにも大事。決める順番が上から）。</div><div class="rows">
+<div class="row dead" data-jd="没"><div class="how">昭和アニメ・紙芝居屋の種明かし</div><div class="vid"><button class="th" data-v="v/動-09.mp4" aria-label="再生"><img loading="lazy" src="v/動-09.jpg" alt=""><i>▶</i></button><div class="tt"><b>駅前の新しいお店</b><small>動-09・59秒・11/02</small></div></div><div class="jd"><span class="b b5">没</span><div class="wd">「全然アニメを再現できていない。トーンも微妙」「中身もやり直し」</div></div></div>
+</div></div>
+</div></section>
+<h2 class="kind">上司の構成例から <span>2本</span></h2>
+<section class="grp"><div class="src"><div class="dt">2026-11-21</div><div class="nm">SEO の記事を書いても問い合わせが0件（上司が書いた構成例）</div></div><div class="ws">
+<div class="w"><div class="msg">やり方を並べる前に、欲しい成果から逆に決める。出した後も「で、何のため？」を問う。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">図解・部長の階段で解説（示唆多め）</div><div class="vid"><button class="th" data-v="v/動-62.mp4" aria-label="再生"><img loading="lazy" src="v/動-62.jpg" alt=""><i>▶</i></button><div class="tt"><b>問い合わせ0件のSEO（上司案・give版）</b><small>動-62・106秒・11/22</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+<div class="row" data-jd="未確認"><div class="how">図解・ヤケ→たまたま当たる→解説（笑い多め）</div><div class="vid"><button class="th" data-v="v/動-63.mp4" aria-label="再生"><img loading="lazy" src="v/動-63.jpg" alt=""><i>▶</i></button><div class="tt"><b>問い合わせ0件のSEO（上司案・IMP版）</b><small>動-63・67秒・11/22</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+ </div>
+ <div class="pane" id="who" hidden>
+  <p class="lead">困りごと（Xの実際の声・他社のアカウント）が先にあって、言いたいことを後から作った動画</p>
+  <div class="chips"><button class="chip" data-f="未確認"><span class="b b0">未確認</span>1</button><button class="chip" data-f="記録なし"><span class="b b1">記録なし</span>1</button><button class="chip" data-f="直し"><span class="b b2">直し</span>1</button><button class="chip" data-f="OK"><span class="b b3">OK</span>0</button><button class="chip" data-f="投稿済み"><span class="b b4">投稿済み</span>0</button><button class="chip" data-f="没"><span class="b b5">没</span>0</button></div>
+  <div class="head"><div class="hs">元の困りごと</div><div class="w"><div class="msg">伝えたいこと</div><div class="row"><div>どのように</div><div>動画</div><div>判定</div></div></div></div>
+  <h2 class="kind">X の声（言えない本音）から <span>2本</span></h2>
+<section class="grp"><div class="src"><div class="nm">「優先度を下げていい」と言われたのに、後で「なぜ遅れている」</div></div><div class="ws">
+<div class="w"><div class="msg">後回しの値段は、締切の日付でなく、待つ間に来る客の数で決まる。</div><div class="rows">
+<div class="row" data-jd="未確認"><div class="how">2Dゲーム画面・心の声→部長が解説</div><div class="vid"><button class="th" data-v="v/動-54.mp4" aria-label="再生"><img loading="lazy" src="v/動-54.jpg" alt=""><i>▶</i></button><div class="tt"><b>後回しでいいって言いましたよね（型G 1本目）</b><small>動-54・65秒・11/19</small></div></div><div class="jd"><span class="b b0">未確認</span></div></div>
+</div></div>
+</div></section>
+<section class="grp"><div class="src"><div class="nm">目的を言わずに、やり方だけ言われる（「とにかくバズらせろ」）</div></div><div class="ws">
+<div class="w"><div class="msg">打ち手の前に「何の数を増やすか→誰に→何を」を決める。上の段が空のまま下を決めても届かない（どのようにも大事。決める順番が上から）。</div><div class="rows">
+<div class="row" data-jd="記録なし"><div class="how">2Dゲーム画面・心の声→部長が解説</div><div class="vid"><button class="th" data-v="v/動-48.mp4" aria-label="再生"><img loading="lazy" src="v/動-48.jpg" alt=""><i>▶</i></button><div class="tt"><b>とにかくバズらせろ（言えない本音）</b><small>動-48・63秒・11/17</small></div></div><div class="jd"><span class="b b1">記録なし</span></div></div>
+</div></div>
+</div></section>
+<h2 class="kind">他社のアカウントから <span>1本</span></h2>
+<section class="grp"><div class="src"><div class="nm">耐え子の日常：頼まれると断れず、仕事が積み上がる</div></div><div class="ws">
+<div class="w"><div class="msg">渡し続けるには、余力と、返ってくる道がいる。</div><div class="rows">
+<div class="row" data-jd="直し"><div class="how">2Dイラスト・朝のメイク中に語りかけ（共感→救う）</div><div class="vid"><button class="th" data-v="v/動-61.mp4" aria-label="再生"><img loading="lazy" src="v/動-61.jpg" alt=""><i>▶</i></button><div class="tt"><b>断れない（女性向け1本目・ミオ）</b><small>動-61・55秒・11/21</small></div></div><div class="jd"><span class="b b2">直し</span><div class="wd">「口も怖い・全然アニメーションになってない・声も男」→ 2Dのパーツで動かす版を作り直し中（絵7枚の保存待ち）</div></div></div>
+</div></div>
+</div></section>
+ </div>
+ <footer>判定：未確認＝まだ見せていない／記録なし＝見たかの記録が無い。見た目・動きだけの試し（9本）はここに入れていない。</footer>
+</main>
+<div id="modal"><button type="button">閉じる</button><video controls playsinline></video></div>
+<script>
+(function(){
+ var tabs=document.querySelectorAll('.tab');
+ function show(t){tabs.forEach(function(b){b.setAttribute('aria-selected',b.dataset.t===t)});
+  document.querySelectorAll('.pane').forEach(function(p){p.hidden=p.id!==t});
+  try{history.replaceState(null,'','#'+t)}catch(e){}}
+ tabs.forEach(function(b){b.onclick=function(){show(b.dataset.t)}});
+ if(location.hash==='#who')show('who');
+ document.querySelectorAll('.pane').forEach(function(p){
+  var chips=p.querySelectorAll('.chip');
+  chips.forEach(function(c){c.onclick=function(){
+   var on=!c.classList.contains('on');chips.forEach(function(x){x.classList.remove('on')});
+   if(on)c.classList.add('on');var f=on?c.dataset.f:null;
+   p.querySelectorAll('.row').forEach(function(r){r.classList.toggle('hide',!!f&&r.dataset.jd!==f)});
+   p.querySelectorAll('.w').forEach(function(w){w.style.display=w.querySelector('.row:not(.hide)')?'':'none'});
+   p.querySelectorAll('.grp').forEach(function(g){g.style.display=g.querySelector('.row:not(.hide)')?'':'none'});
+  }});
+ });
+ var m=document.getElementById('modal'),v=m.querySelector('video');
+ function close(){v.pause();v.removeAttribute('src');v.load();m.classList.remove('open')}
+ document.querySelectorAll('.th[data-v]').forEach(function(b){b.onclick=function(){v.src=b.dataset.v;m.classList.add('open');v.play()}});
+ m.onclick=function(e){if(e.target===m||e.target.tagName==='BUTTON')close()};
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+})();
+</script>
+</body>
+</html>
